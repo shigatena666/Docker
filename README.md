@@ -1,81 +1,94 @@
-### Useful Links:
-- [Servarr Wiki](https://wiki.servarr.com/)
-- [Trash Guides](https://trash-guides.info/)
-- [Ascii ART](https://patorjk.com/software/taag/#p=display&f=ANSI%20Shadow)
+### Useful Links
+- **[Servarr Wiki](https://wiki.servarr.com/)**: Comprehensive documentation for the *Arr* applications.
+- **[Trash Guides](https://trash-guides.info/)**: User-friendly guides for Sonarr, Radarr, and related tools.
+- **[Ascii ART](https://patorjk.com/software/taag/#p=display&f=ANSI%20Shadow)**: Create ASCII art for your projects.
 
-### Installation process:
-Make sure you are in the same folder as docker-compose.yml and .env file, then 'up' to deploy, 'stop' and 'rm' to stop and remove the stack  :<br />
+### Installation Process
+1. **Preparation**:
+   - Ensure you are in the same directory as `docker-compose.yml` and `.env` files.
 
-```bash
-sudo docker-compose up -d 
-sudo docker-compose stop
-sudo docker-compose rm 
-```
+2. **Deployment Commands**:
+   - To deploy the stack, run:
+     ```bash
+     sudo docker-compose up -d 
+     ```
+   - To stop and remove the stack, use:
+     ```bash
+     sudo docker-compose stop
+     sudo docker-compose rm 
+     ```
 
-Go to the folder specified in .env file (if its /media/Arr then go to /media as root) and 
-run chown command with the user id and group id configured in that .env file:<br />
-`chown -R 1000:1000 Arr`<br />
-Now you can log on and work with all services.<br />
+3. **Set Permissions**:
+   - Navigate to the folder specified in the `.env` file (e.g., if it’s `/media/Arr`, go to `/media` as root).
+   - Run the following command to set ownership:
+     ```bash
+     chown -R 1000:1000 Arr
+     ```
+   - This allows you to log in and manage all services.
 
-First configure the qBittorrent service because its using temporary password only:<br />
+### Service Configuration
 
-**qBittorrent:**<br />
-First - find the qbittorrent container id by running:<br />
-`sudo docker ps`<br />
-Then check logs for that container it:<br />
-`sudo docker logs <qbittorrent-container-id>`<br />
-You will see in the logs something like:<br />
-*The WebUI administrator username is: admin<br />
-The WebUI administrator password was not set. A temporary password is provided for this session: <your-password-will-be-here>* <br />
-Now you can go to URL:<br />
-http://localhost:8080<br />
-and log on using details provided in container logs.<br />
-Go to Tools - Options - WebUI - change the user and password and tick 'bypass authentication for clients on localhost' .<br />
+#### qBittorrent Configuration
+1. **Find Container ID**:
+   - Execute:
+     ```bash
+     sudo docker ps
+     ```
+2. **Check Logs**:
+   - Use the container ID to view logs:
+     ```bash
+     sudo docker logs <qbittorrent-container-id>
+     ```
+   - Look for a line indicating the temporary password.
 
-Then first configure Prowlarr service (each of these services will require to set up user/pass):<br />
+3. **Access WebUI**:
+   - Go to [http://localhost:8080](http://localhost:8080) and log in with the provided credentials.
+   - Navigate to Tools > Options > WebUI, change the username and password, and enable "bypass authentication for clients on localhost".
 
-**Prowlarr:**<br />
-http://localhost:9696<br />
-Go to Settings - Download Clients - `+` symbol - Add download client - choose qBittorrent (unless you decided touse different download client)<br />
-Put the port id matching the WebUI in docker-compose for qBittorrent (default is 8080) and username and password that you configured for qBittorrent in previous step<br />
-Host - you have to change from localhost to ip address of the host machine (run 'ip address' command on your host system)<br />
+#### Prowlarr Configuration
+- Access at [http://localhost:9696](http://localhost:9696).
+- Go to Settings > Download Clients > `+` > Add qBittorrent.
+- Match the port ID with qBittorrent's WebUI (default is 8080) and enter the credentials set earlier.
+- Change Host from localhost to your host machine's IP address (use `ip address` command).
 
-**Sonarr:**<br />
-http://localhost:8989<br />
-Go to Settings - Media Management - Add Root Folder - set /data/tvshows as your root folder<br />
-Go to Settings - Download Clients - click `+` symbol - choose qBittorrent and repeat the steps from Prowlarr.<br />
-(there are also 'Remote Path Mappings' - use only if your qBittorrent and ARR stack are on different hosts / systems)<br />
-Go to Settings - General - scroll down to API key - copy - go to Prowlarr - Settings - Apps -click '+' - Sonarr - paste  API key and change 'localhost' to ip address of the Ubuntu/Host again.<br />
-Then Settings - General - switch to 'show advanced' in top left corner - scroll down to 'Backups' and choose /data/Backup (or whatever location you have in your docker compose file for Sonarr backups )<br />
+#### Sonarr Configuration
+- Access at [http://localhost:8989](http://localhost:8989).
+- Set up Root Folder under Settings > Media Management as `/data/tvshows`.
+- Repeat the download client setup as done in Prowlarr.
+- Copy API key from Settings > General and add it in Prowlarr under Settings > Apps.
 
-**Radarr:**<br />
-http://localhost:7878<br />
-Go to Settings - Media Management - Add Root Folder - set  /data/movies as your root folder <br />
-Then Settings- Download clients - click 'plus' symbol, choose qBittorrent etc - basically same steps as for Sonarr<br />
-Settings - General - scroll down to API key - copy - go to Prowlarr - add same way as in sonarr<br />
-Settings - General - switch to 'show advanced'- Backups - choose /data/Backup folder <br />
+#### Radarr Configuration
+- Access at [http://localhost:7878](http://localhost:7878).
+- Set Root Folder as `/data/movies`.
+- Follow similar steps as Sonarr for download client setup and API key integration.
 
-**Lidarr:**<br />
-http://localhost:8686<br />
-Follow the same steps for Lidarr and Readarr as for above applications.<br />
+#### Lidarr Configuration
+- Access at [http://localhost:8686](http://localhost:8686).
+- Configure similarly to Radarr.
 
-**Readarr:**<br />
-http://localhost:8787<br />
+#### Readarr Configuration
+- Access at [http://localhost:8787](http://localhost:8787).
+- Follow Lidarr's configuration steps.
 
-**Homarr:**<br />
-http://localhost:7575<br />
+#### Homarr Configuration
+- Access at [http://localhost:7575](http://localhost:7575).
+- Configure as per previous applications.
 
-Now go back to Prowlarr and click 'Indexers at the top right, click 'Add indexer' - search for sth like 'rarbg' or 'yts' etc then test - save<br />
-Then click 'Sync App Indexers  icon (next to 'Add indexer')<br />
-If you go to Settings - Apps - you should see green 'Full sync' next to each application.<br />
-Arr stack completed - you can now 'add movie' in radarr or 'add series' in sonarr etc and click 'search all' or 'search monitored' - that will trigger the download process.<br />
+### Final Steps
+1. In Prowlarr, click on Indexers > Add Indexer, search for indexers like 'rarbg' or 'yts', test, and save.
+2. Click on 'Sync App Indexers' icon to ensure synchronization.
+3. Verify that green 'Full sync' appears next to each application under Settings > Apps.
 
-**Jellyfin:**<br />
-http://localhost:8096<br />
-If you run `docker-compose up` and have something running on port 1900 -  its most possibly rygel service, run:<br />
-`sudo apt-get remove rygel` and run the `sudo docker-compose up -d` again.<br />
-Then add media library in Jellyfin  matching folders configured in docker-compose.yml file, so in Jellyfin you should see them as: <br />
-/data/Movies <br />
-/data/TVShows <br />
-/data/Music <br />
-/data/Books <br />
+### Jellyfin Configuration
+1. Access at [http://localhost:8096](http://localhost:8096).
+2. If encountering issues with port 1900, remove Rygel using:
+   ```bash
+   sudo apt-get remove rygel
+   ```
+3. Add media libraries matching folders specified in `docker-compose.yml`, such as:
+   - `/data/Movies`
+   - `/data/TVShows`
+   - `/data/Music`
+   - `/data/Books`
+
+With these steps completed, your *Arr* stack is fully operational, enabling you to add movies in Radarr or series in Sonarr and trigger downloads effectively.
