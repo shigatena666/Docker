@@ -1,0 +1,126 @@
+services:       
+                             
+  prowlarr:
+    image: linuxserver/prowlarr:latest
+    container_name: prowlarr
+    hostname: prowlarr
+    volumes:
+      - ${ARRPATH}Prowlarr/config:/config
+      - ${ARRPATH}Prowlarr/backup:/data/Backup
+      - ${ARRPATH}Downloads:/downloads
+    ports:
+      - 9696:9696
+    restart: unless-stopped
+    env_file:
+      - '.env'                                            
+      
+  sonarr:
+    image: linuxserver/sonarr:latest
+    container_name: sonarr
+    hostname: sonarr
+    volumes:
+      - ${ARRPATH}Sonarr/config:/config
+      - ${ARRPATH}Sonarr/backup:/data/Backup
+      - ${ARRPATH}Sonarr/tvshows:/data/tvshows
+      - ${ARRPATH}Downloads:/downloads
+    ports:
+      - 8989:8989
+    restart: unless-stopped
+    env_file:
+      - '.env'
+      
+  radarr:
+    image: linuxserver/radarr:latest
+    container_name: radarr
+    hostname: radarr
+    volumes:
+      - ${ARRPATH}Radarr/config:/config
+      - ${ARRPATH}Radarr/movies:/data/movies
+      - ${ARRPATH}Radarr/backup:/data/Backup
+      - ${ARRPATH}Downloads:/downloads
+    ports:
+      - 7878:7878
+    restart: unless-stopped
+    env_file:
+      - '.env'
+         
+  homarr:
+    container_name: homarr
+    image: ghcr.io/ajnart/homarr:latest
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${ARRPATH}Homarr/configs:/app/data/configs
+      - ${ARRPATH}Homarr/icons:/app/public/icons
+      - ${ARRPATH}Homarr/data:/data
+    ports:
+      - '7575:7575'
+    env_file:
+      - '.env'
+     
+  jellyfin:
+    image: jellyfin/jellyfin
+    container_name: jellyfin
+    network_mode: 'bridge'
+    ports:
+      - '8096:8096/tcp'   # Jellyfin web interface
+      - '7359:7359/udp'   # Network discovery
+      - '1900:1900/udp'   # DLNA port
+    volumes:
+      - ${ARRPATH}Jellyfin/config:/config
+      - ${ARRPATH}Radarr/movies:/data/Movies
+      - ${ARRPATH}Sonarr/tvshows:/data/TVShows
+      - ${ARRPATH}Sonarr/animes:/data/Animes
+    env_file:
+      - '.env'
+    restart: unless-stopped
+        
+  qbittorrent:
+    image: binhex/arch-qbittorrentvpn
+    container_name: qbittorrent
+    volumes:
+      - ${ARRPATH}qbittorrent/config:/config
+      - ${ARRPATH}Downloads:/downloads
+    ports:
+      - 8080:8080
+      - 6881:6881
+      - 6881:6881/udp
+    environment:
+      - VPN_ENABLED=yes
+      - VPN_PROV=protonvpn
+      - VPN_CLIENT=openvpn
+      - VPN_USER=${PROTON_USERNAME}+pmp
+      - VPN_PASS=${PROTON_PASSWORD}
+      - STRICT_PORT_FORWARD=yes
+      - NAME_SERVERS=84.200.69.80,37.235.1.174,1.1.1.1,37.235.1.177,84.200.70.40,1.0.0.1
+      - LAN_NETWORK=192.168.1.0/24
+      - ENABLE_PRIVOXY=yes
+      - WEBUI_PORT=8080
+      - UMASK=000
+      - DEBUG=false
+    cap_add:
+      - NET_ADMIN
+    network_mode: bridge
+    restart: unless-stopped
+    env_file:
+      - '.env'
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    ports:
+      - "8191:8191"
+    environment:
+      - LOG_LEVEL=info
+    restart: unless-stopped
+  
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    ports:
+      - 5055:5055
+    volumes:
+      - ${ARRPATH}Jellyseer/config:/config
+    restart: unless-stopped
+    env_file:
+      - '.env'
