@@ -92,3 +92,9 @@
    - `/data/Books`
 
 With these steps completed, your *Arr* stack is fully operational, enabling you to add movies in Radarr or series in Sonarr and trigger downloads effectively.
+
+### Paperless-ngx
+   - Run this command to create the superuser:
+     ```bash
+     docker compose run --rm webserver createsuperuser
+     ```
