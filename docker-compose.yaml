@@ -5,9 +5,9 @@ services:
     container_name: prowlarr
     hostname: prowlarr
     volumes:
-      - ${ARRPATH}Prowlarr/config:/config
-      - ${ARRPATH}Prowlarr/backup:/data/Backup
-      - ${ARRPATH}Downloads:/downloads
+      - ${ARR_PATH}Prowlarr/config:/config
+      - ${ARR_PATH}Prowlarr/backup:/data/Backup
+      - ${ARR_PATH}Downloads:/downloads
     ports:
       - 9696:9696
     restart: unless-stopped
@@ -19,10 +19,10 @@ services:
     container_name: sonarr
     hostname: sonarr
     volumes:
-      - ${ARRPATH}Sonarr/config:/config
-      - ${ARRPATH}Sonarr/backup:/data/Backup
-      - ${ARRPATH}Sonarr/tvshows:/data/tvshows
-      - ${ARRPATH}Downloads:/downloads
+      - ${ARR_PATH}Sonarr/config:/config
+      - ${ARR_PATH}Sonarr/backup:/data/Backup
+      - ${ARR_PATH}Sonarr/tvshows:/data/tvshows
+      - ${ARR_PATH}Downloads:/downloads
     ports:
       - 8989:8989
     restart: unless-stopped
@@ -34,10 +34,10 @@ services:
     container_name: radarr
     hostname: radarr
     volumes:
-      - ${ARRPATH}Radarr/config:/config
-      - ${ARRPATH}Radarr/movies:/data/movies
-      - ${ARRPATH}Radarr/backup:/data/Backup
-      - ${ARRPATH}Downloads:/downloads
+      - ${ARR_PATH}Radarr/config:/config
+      - ${ARR_PATH}Radarr/movies:/data/movies
+      - ${ARR_PATH}Radarr/backup:/data/Backup
+      - ${ARR_PATH}Downloads:/downloads
     ports:
       - 7878:7878
     restart: unless-stopped
@@ -50,9 +50,9 @@ services:
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ${ARRPATH}Homarr/configs:/app/data/configs
-      - ${ARRPATH}Homarr/icons:/app/public/icons
-      - ${ARRPATH}Homarr/data:/data
+      - ${ARR_PATH}Homarr/configs:/app/data/configs
+      - ${ARR_PATH}Homarr/icons:/app/public/icons
+      - ${ARR_PATH}Homarr/data:/data
     ports:
       - '7575:7575'
     env_file:
@@ -67,10 +67,10 @@ services:
       - '7359:7359/udp'   # Network discovery
       - '1900:1900/udp'   # DLNA port
     volumes:
-      - ${ARRPATH}Jellyfin/config:/config
-      - ${ARRPATH}Radarr/movies:/data/Movies
-      - ${ARRPATH}Sonarr/tvshows:/data/TVShows
-      - ${ARRPATH}Sonarr/animes:/data/Animes
+      - ${ARR_PATH}Jellyfin/config:/config
+      - ${ARR_PATH}Radarr/movies:/data/Movies
+      - ${ARR_PATH}Sonarr/tvshows:/data/TVShows
+      - ${ARR_PATH}Sonarr/animes:/data/Animes
     env_file:
       - '.env'
     restart: unless-stopped
@@ -79,8 +79,8 @@ services:
     image: binhex/arch-qbittorrentvpn
     container_name: qbittorrent
     volumes:
-      - ${ARRPATH}qbittorrent/config:/config
-      - ${ARRPATH}Downloads:/downloads
+      - ${ARR_PATH}qbittorrent/config:/config
+      - ${ARR_PATH}Downloads:/downloads
     ports:
       - 8080:8080
       - 6881:6881
@@ -120,7 +120,48 @@ services:
     ports:
       - 5055:5055
     volumes:
-      - ${ARRPATH}Jellyseer/config:/app/config
+      - ${ARR_PATH}Jellyseer/config:/app/config
     restart: unless-stopped
     env_file:
       - '.env'
+
+  broker:
+    image: docker.io/library/redis:7
+    restart: unless-stopped
+    volumes:
+      - redisdata:/data
+
+  db:
+    image: docker.io/library/postgres:16
+    restart: unless-stopped
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: paperless
+      POSTGRES_USER: paperless
+      POSTGRES_PASSWORD: paperless
+
+  webserver:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    restart: unless-stopped
+    depends_on:
+      - db
+      - broker
+    ports:
+      - "8000:8000"
+    volumes:
+      - data:/usr/src/paperless/data
+      - media:/usr/src/paperless/media
+      - ./export:/usr/src/paperless/export
+      - ./consume:/usr/src/paperless/consume
+    env_file:
+      - '.env'
+    environment:
+      PAPERLESS_REDIS: redis://broker:6379
+      PAPERLESS_DBHOST: db
+
+volumes:
+  data:
+  media:
+  pgdata:
+  redisdata:
