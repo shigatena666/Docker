@@ -120,7 +120,7 @@ services:
     ports:
       - 5055:5055
     volumes:
-      - ${ARRPATH}Jellyseer/config:/config
+      - ${ARRPATH}Jellyseer/config:/app/config
     restart: unless-stopped
     env_file:
       - '.env'
