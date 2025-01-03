@@ -1,0 +1,45 @@
+services:       
+  broker:
+    image: docker.io/library/redis:7
+    container_name: broker
+    restart: unless-stopped
+    volumes:
+      - redisdata:/data
+
+  db:
+    image: docker.io/library/postgres:16
+    container_name: db
+    restart: unless-stopped
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: paperless
+      POSTGRES_USER: paperless
+      POSTGRES_PASSWORD: paperless
+
+  webserver:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    container_name: webserver
+    restart: unless-stopped
+    depends_on:
+      - db
+      - broker
+    ports:
+      - "8000:8000"
+    volumes:
+      - ${PAPERLESS_PATH}data:/usr/src/paperless/data
+      - ${PAPERLESS_PATH}media:/usr/src/paperless/media
+      - ${PAPERLESS_PATH}export:/usr/src/paperless/export
+      - ${PAPERLESS_PATH}consume:/usr/src/paperless/consume
+    env_file:
+      - '.env'
+    environment:
+      PAPERLESS_REDIS: redis://broker:6379
+      PAPERLESS_DBHOST: db
+      PAPERLESS_ADMIN_USER: ${PAPERLESS_ADMIN_USER}
+      PAPERLESS_ADMIN_PASSWORD: ${PAPERLESS_ADMIN_PASSWORD}
+      PAPERLESS_ADMIN_MAIL: ${PAPERLESS_ADMIN_MAIL}
+
+volumes:
+  pgdata:
+  redisdata:
