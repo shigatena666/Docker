@@ -72,7 +72,7 @@
 3. Verify that green 'Full sync' appears next to each application under Settings > Apps.
 
 ### Plex Configuration
-1. Access at [http://localhost:8096](http://localhost:8096).
+1. Access at [http://localhost:32400](http://localhost:32400/).
 2. Add media libraries matching folders specified in `docker-compose.yml`, such as:
    - `/data/Movies`
    - `/data/TVShows`
