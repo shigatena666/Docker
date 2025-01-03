@@ -1,0 +1,133 @@
+services:       
+                             
+  prowlarr:
+    image: linuxserver/prowlarr:latest
+    container_name: prowlarr
+    hostname: prowlarr
+    volumes:
+      - ${ARR_PATH}Prowlarr/config:/config
+      - ${ARR_PATH}Prowlarr/backup:/data/Backup
+      - ${ARR_PATH}Downloads:/downloads
+    ports:
+      - 9696:9696
+    restart: unless-stopped
+    env_file:
+      - '.env'                                            
+      
+  sonarr:
+    image: linuxserver/sonarr:latest
+    container_name: sonarr
+    hostname: sonarr
+    volumes:
+      - ${ARR_PATH}Sonarr/config:/config
+      - ${ARR_PATH}Sonarr/backup:/data/Backup
+      - ${ARR_PATH}Sonarr/tvshows:/data/tvshows
+      - ${ARR_PATH}Sonarr/animes:/data/animes
+      - ${ARR_PATH}Downloads:/downloads
+    ports:
+      - 8989:8989
+    restart: unless-stopped
+    env_file:
+      - '.env'
+      
+  radarr:
+    image: linuxserver/radarr:latest
+    container_name: radarr
+    hostname: radarr
+    volumes:
+      - ${ARR_PATH}Radarr/config:/config
+      - ${ARR_PATH}Radarr/movies:/data/movies
+      - ${ARR_PATH}Radarr/backup:/data/Backup
+      - ${ARR_PATH}Downloads:/downloads
+    ports:
+      - 7878:7878
+    restart: unless-stopped
+    env_file:
+      - '.env'
+         
+  homarr:
+    container_name: homarr
+    image: ghcr.io/ajnart/homarr:latest
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${ARR_PATH}Homarr/configs:/app/data/configs
+      - ${ARR_PATH}Homarr/icons:/app/public/icons
+      - ${ARR_PATH}Homarr/data:/data
+    ports:
+      - '7575:7575'
+    env_file:
+      - '.env'
+        
+  plex:
+    image: plexinc/pms-docker:latest
+    container_name: plex
+    network_mode: bridge
+    ports:
+      - 32400:32400/tcp
+      - 8324:8324/tcp
+      - 32469:32469/tcp
+      - 1900:1900/udp
+      - 32410:32410/udp
+      - 32412:32412/udp
+      - 32413:32413/udp
+      - 32414:32414/udp
+    volumes:
+      - ${ARR_PATH}Plex/config:/config
+      - ${ARR_PATH}Radarr/movies:/data/Movies
+      - ${ARR_PATH}Sonarr/tvshows:/data/TVShows
+      - ${ARR_PATH}Sonarr/animes:/data/Animes
+      - ${ARR_PATH}Plex/transcode:/transcode
+    restart: unless-stopped
+    env_file:
+      - '.env'
+
+  qbittorrent:
+    image: binhex/arch-qbittorrentvpn
+    container_name: qbittorrent
+    volumes:
+      - ${ARR_PATH}qbittorrent/config:/config
+      - ${ARR_PATH}Downloads:/downloads
+    ports:
+      - 8080:8080
+      - 6881:6881
+      - 6881:6881/udp
+    environment:
+      - VPN_ENABLED=yes
+      - VPN_PROV=protonvpn
+      - VPN_CLIENT=openvpn
+      - VPN_USER=${PROTON_USERNAME}+pmp
+      - VPN_PASS=${PROTON_PASSWORD}
+      - STRICT_PORT_FORWARD=yes
+      - NAME_SERVERS=84.200.69.80,37.235.1.174,1.1.1.1,37.235.1.177,84.200.70.40,1.0.0.1
+      - LAN_NETWORK=192.168.1.0/24
+      - ENABLE_PRIVOXY=yes
+      - WEBUI_PORT=8080
+      - UMASK=000
+      - DEBUG=false
+    cap_add:
+      - NET_ADMIN
+    network_mode: bridge
+    restart: unless-stopped
+    env_file:
+      - '.env'
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    ports:
+      - "8191:8191"
+    environment:
+      - LOG_LEVEL=info
+    restart: unless-stopped
+
+  overseerr:
+    image: lscr.io/linuxserver/overseerr:latest
+    container_name: overseerr
+    volumes:
+      - ${ARR_PATH}Overseerr/config:/config
+    ports:
+      - 5055:5055
+    restart: unless-stopped
+    env_file:
+      - '.env'
