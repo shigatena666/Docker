@@ -18,14 +18,6 @@
      sudo docker-compose rm 
      ```
 
-3. **Set Permissions**:
-   - Navigate to the folder specified in the `.env` file (e.g., if it’s `/media/Arr`, go to `/media` as root).
-   - Run the following command to set ownership:
-     ```bash
-     chown -R 1000:1000 Arr
-     ```
-   - This allows you to log in and manage all services.
-
 ### Service Configuration
 
 #### qBittorrent Configuration
@@ -79,22 +71,26 @@
 2. Click on 'Sync App Indexers' icon to ensure synchronization.
 3. Verify that green 'Full sync' appears next to each application under Settings > Apps.
 
-### Jellyfin Configuration
+### Plex Configuration
 1. Access at [http://localhost:8096](http://localhost:8096).
-2. If encountering issues with port 1900, remove Rygel using:
-   ```bash
-   sudo apt-get remove rygel
-   ```
-3. Add media libraries matching folders specified in `docker-compose.yml`, such as:
+2. Add media libraries matching folders specified in `docker-compose.yml`, such as:
    - `/data/Movies`
    - `/data/TVShows`
-   - `/data/Music`
-   - `/data/Books`
+   - `/data/Animes`
 
 With these steps completed, your *Arr* stack is fully operational, enabling you to add movies in Radarr or series in Sonarr and trigger downloads effectively.
 
 ### Paperless-ngx
-   - Run this command to create the superuser:
+1. **Preparation**:
+   - Ensure you are in the same directory as `docker-compose.yml` and `.env` files.
+
+2. **Deployment Commands**:
+   - To deploy the stack, run:
      ```bash
-     docker compose run --rm webserver createsuperuser
+     sudo docker-compose up -d 
+     ```
+   - To stop and remove the stack, use:
+     ```bash
+     sudo docker-compose stop
+     sudo docker-compose rm 
      ```
