@@ -83,12 +83,13 @@ With these steps completed, your *Arr* stack is fully operational, enabling you 
 ### Paperless-ngx
 1. **Preparation**:
    - Ensure you are in the same directory as `docker-compose.yml` and `.env` files.
-2. ```bash
+2. **Import files from export using right encoding**
+   ```bash
    docker exec -i -t webserver bash
    apt-get install -y convmv
    convmv -r -f utf8 -t utf8 --nfc --notest /usr/src/paperless/export/
    ```
-3. **Deployment Commands**:
+4. **Deployment Commands**:
    - To deploy the stack, run:
      ```bash
      sudo docker-compose up -d 
